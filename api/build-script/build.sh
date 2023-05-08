@@ -1,10 +1,10 @@
 #!/bin/bash
+set -e
+
 ########################################################
 # How to use
 # ./build.sh -e k8sstg -c {last_commit}
 ########################################################
-
-set -e
 
 ########################################################
 # Parse arguments
@@ -35,7 +35,7 @@ fi
 ########################################################
 
 cd "${GOPATH}"/src/github.com/17media/api
-git pull origin master
+# git pull origin master
 go mod tidy
 
 cd "${GOPATH}"/src/github.com/17media/api/infra/deploy/docker
@@ -59,8 +59,14 @@ echo "last_commit: [${last_commit}]"
 echo "curr_commit: [${current_commit}]"
 echo "---------- RELEASE NOTE BELOW ----------"
 
+deploy_env="STAG"
+
+if [ ${env} == "k8sprod" ]; then
+  deploy_env="PROD"
+fi
+
 release_note=$(cat <<-END
-Wave backend, :slack: :機器人:  \`STAG\` with \`${current_commit}\` cc @wave-engineers
+Wave backend, :slack: :機器人:  \`${deploy_env}\` with \`${current_commit}\` cc @wave-engineers
 \`\`\`
 ${release_commits}
 \`\`\`
