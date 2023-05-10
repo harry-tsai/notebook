@@ -66,7 +66,7 @@ if [ ${env} == "k8sprod" ]; then
 fi
 
 release_note=$(cat <<-END
-Wave backend, :slack: :機器人:  \`${deploy_env}\` with \`${current_commit}\` cc @wave-engineers
+Wave backend, :slack: :robot_face:  \`${deploy_env}\` with \`${current_commit}\` cc @wave-engineers
 \`\`\`
 ${release_commits}
 \`\`\`
