@@ -1,35 +1,45 @@
 #!/bin/bash
 set -e
 
-########################################################
-# How to use
-# ./build.sh -e k8sstg -c {last_commit} -t {target_commit}
-# -c: required
-# -t: optional, default is master
-########################################################
+usage="$(basename "$0") [-h] [-e env] [-c last_commit] [-t target_commit] -- program to build and publish Wave API docker image
+
+where:
+    -h  show this help text
+    -e  required, environment name (e.g. k8ssta, k8sprod)
+    -c  required, last commit sha1. It's used to generate RELEASE NOTE
+    -t  optional, target commit sha1. It's used to generate RELEASE NOTE (default is master)"
 
 ########################################################
 # Parse arguments
 ########################################################
 
-while getopts e:f:c:t: flag
+# default value
+target_commit="master"
+
+while getopts ':he:c:t:' flag
 do
   case "${flag}" in
+    h) echo "${usage}"
+       exit
+       ;;
     e) env="${OPTARG}";;
-    f) last_commit_file="${OPTARG}";;
     c) last_commit="${OPTARG}";;
     t) target_commit="${OPTARG}";;
-    *) exit 1;;
+    :) printf "missing argument for -%s\n" "${OPTARG}" >&2
+       echo "${usage}" >&2
+       exit 1
+       ;;
+   \?) printf "illegal option: -%s\n" "${OPTARG}" >&2
+       echo "${usage}" >&2
+       exit 1
+       ;;
   esac
 done
 
-if [ "${last_commit}" == "" ]; then
-  echo "specify -c [last_commit]"
+if [ -z "${env}" ] || [ -z "${last_commit}" ] || [ -z "${target_commit}" ]; then
+  echo "missing required arguments." >&2
+  echo "${usage}" >&2
   exit 1
-fi
-
-if [ "${target_commit}" == "" ]; then
-  target_commit="master"
 fi
 
 ########################################################
@@ -79,4 +89,3 @@ END
 )
 
 echo "${release_note}"
-
