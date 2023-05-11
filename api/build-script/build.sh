@@ -3,31 +3,33 @@ set -e
 
 ########################################################
 # How to use
-# ./build.sh -e k8sstg -c {last_commit}
+# ./build.sh -e k8sstg -c {last_commit} -t {target_commit}
+# -c: required
+# -t: optional, default is master
 ########################################################
 
 ########################################################
 # Parse arguments
 ########################################################
 
-last_commit_file=".tmp/last_commit"
-
-while getopts e:f:c: flag
+while getopts e:f:c:t: flag
 do
   case "${flag}" in
     e) env="${OPTARG}";;
     f) last_commit_file="${OPTARG}";;
     c) last_commit="${OPTARG}";;
+    t) target_commit="${OPTARG}";;
     *) exit 1;;
   esac
 done
 
 if [ "${last_commit}" == "" ]; then
-  if [ ! -f "${last_commit_file}" ]; then
-    echo "${last_commit_file} is not exist, specify -f [last_commit_file]"
-    exit 1;
-  fi
-  last_commit=$(cat "${last_commit_file}")
+  echo "specify -c [last_commit]"
+  exit 1
+fi
+
+if [ "${target_commit}" == "" ]; then
+  target_commit="master"
 fi
 
 ########################################################
@@ -35,8 +37,11 @@ fi
 ########################################################
 
 cd "${GOPATH}"/src/github.com/17media/api
-# git pull origin master
+git co master
+git pull origin master
+git co ${target_commit}
 go mod tidy
+go mod vendor
 
 cd "${GOPATH}"/src/github.com/17media/api/infra/deploy/docker
 
