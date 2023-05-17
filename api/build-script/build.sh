@@ -43,13 +43,32 @@ if [ -z "${env}" ] || [ -z "${last_commit}" ] || [ -z "${target_commit}" ]; then
 fi
 
 ########################################################
-# Build and Publish images
+# Pull target commit
 ########################################################
 
 cd "${GOPATH}"/src/github.com/17media/api
 git co master
-git pull origin master
-git co ${target_commit}
+git fetch --all
+
+last_commit_ref=$(git rev-parse ${last_commit})
+target_commit_ref=$(git rev-parse ${target_commit})
+
+git co ${target_commit_ref}
+
+########################################################
+# Print basic information
+########################################################
+
+echo "----------- BASIC INFO BELOW -----------"
+echo "env: [${env}]"
+echo "last_commit: ${last_commit} (sha1: ${last_commit_ref})"
+echo "target_commit: ${target_commit} (sha1: ${target_commit_ref})"
+echo "----------------------------------------"
+
+########################################################
+# Build and Publish images
+########################################################
+
 go mod tidy
 go mod vendor
 
@@ -67,11 +86,6 @@ cd "${GOPATH}"/src/github.com/17media/api/infra/deploy/docker
 # Generate Release Note
 ########################################################
 
-current_commit=$(git rev-parse HEAD)
-release_commits=$(git log --name-only --oneline "${last_commit}".."${current_commit}" | grep "Wave")
-echo "env: [${env}]"
-echo "last_commit: [${last_commit}]"
-echo "curr_commit: [${current_commit}]"
 echo "---------- RELEASE NOTE BELOW ----------"
 
 deploy_env="STAG"
@@ -80,8 +94,9 @@ if [ ${env} == "k8sprod" ]; then
   deploy_env="PROD"
 fi
 
+release_commits=$(git log --name-only --oneline "${last_commit_ref}".."${target_commit_ref}" | grep "Wave")
 release_note=$(cat <<-END
-Wave backend, :slack: :robot_face:  \`${deploy_env}\` with \`${current_commit}\` cc @wave-engineers
+Wave backend, :slack: :robot_face:  \`${deploy_env}\` with \`${target_commit_ref}\` cc @wave-engineers
 \`\`\`
 ${release_commits}
 \`\`\`
@@ -89,3 +104,4 @@ END
 )
 
 echo "${release_note}"
+echo "-----------------------------------------"
