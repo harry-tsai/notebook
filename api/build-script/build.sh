@@ -47,13 +47,14 @@ fi
 ########################################################
 
 cd "${GOPATH}"/src/github.com/17media/api
-git co master
+git checkout master
 git fetch --all
+git pull origin master
 
 last_commit_ref=$(git rev-parse ${last_commit})
 target_commit_ref=$(git rev-parse ${target_commit})
 
-git co ${target_commit_ref}
+git checkout ${target_commit_ref}
 
 ########################################################
 # Print basic information
