@@ -9,8 +9,8 @@ build.sh [-h] [-e env] [-c last_commit] [-t target_commit] -- program to build a
 where:
     -h  show this help text
     -e  required, environment name (e.g. k8ssta, k8sprod)
-    -c  required, last commit sha1. It's used to generate RELEASE NOTE
-    -t  optional, target commit sha1. It's used to generate RELEASE NOTE (default is master)
+    -c  required, last release commit sha1 (ref to slack channel: `wave-release`). It's used to generate RELEASE NOTE.
+    -t  optional (default is `master`), target release commit sha1. It's used to generate RELEASE NOTE.
 ```
 
 ### Example
