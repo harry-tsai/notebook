@@ -87,8 +87,6 @@ cd "${GOPATH}"/src/github.com/17media/api/infra/deploy/docker
 # Generate Release Note
 ########################################################
 
-echo "---------- RELEASE NOTE BELOW ----------"
-
 deploy_env="STAG"
 
 if [ ${env} == "k8sprod" ]; then
@@ -104,5 +102,6 @@ ${release_commits}
 END
 )
 
+echo "---------- RELEASE NOTE BELOW ----------"
 echo "${release_note}"
 echo "-----------------------------------------"
