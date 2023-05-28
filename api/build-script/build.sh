@@ -36,9 +36,18 @@ do
   esac
 done
 
+########################################################
+# validate arguments
+########################################################
+
 if [ -z "${env}" ] || [ -z "${last_commit}" ] || [ -z "${target_commit}" ]; then
   echo "missing required arguments." >&2
   echo "${usage}" >&2
+  exit 1
+fi
+
+if [ "${env}" != "k8ssta" ] && [ "${env}" != "k8sprod" ]; then
+  echo "-e [env] should be k8ssta or k8sprod"
   exit 1
 fi
 
@@ -93,14 +102,18 @@ if [ ${env} == "k8sprod" ]; then
   deploy_env="PROD"
 fi
 
-release_commits=$(git log --name-only --oneline "${last_commit_ref}".."${target_commit_ref}" | grep "Wave")
-release_note=$(cat <<-END
-Wave backend, :slack: :robot_face:  \`${deploy_env}\` with \`${target_commit_ref}\` cc @wave-engineers
+release_note="Wave backend, :slack: :robot_face:  \`${deploy_env}\` with \`${target_commit_ref}\` cc @wave-engineers"
+
+if [ $deploy_env == "STAG" ]; then
+  release_commits=$(git log --name-only --oneline "${last_commit_ref}".."${target_commit_ref}" | grep "Wave")
+  release_note=$(cat <<-END
+$release_note
 \`\`\`
 ${release_commits}
 \`\`\`
 END
 )
+fi
 
 echo "---------- RELEASE NOTE BELOW ----------"
 echo "${release_note}"
