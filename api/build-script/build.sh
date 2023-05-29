@@ -16,23 +16,25 @@ where:
 # default value
 target_commit="master"
 
-while getopts ':he:c:t:' flag
-do
+while getopts ':he:c:t:' flag; do
   case "${flag}" in
-    h) echo "${usage}"
-       exit
-       ;;
-    e) env="${OPTARG}";;
-    c) last_commit="${OPTARG}";;
-    t) target_commit="${OPTARG}";;
-    :) printf "missing argument for -%s\n" "${OPTARG}" >&2
-       echo "${usage}" >&2
-       exit 1
-       ;;
-   \?) printf "illegal option: -%s\n" "${OPTARG}" >&2
-       echo "${usage}" >&2
-       exit 1
-       ;;
+  h)
+    echo "${usage}"
+    exit
+    ;;
+  e) env="${OPTARG}" ;;
+  c) last_commit="${OPTARG}" ;;
+  t) target_commit="${OPTARG}" ;;
+  :)
+    printf "missing argument for -%s\n" "${OPTARG}" >&2
+    echo "${usage}" >&2
+    exit 1
+    ;;
+  \?)
+    printf "illegal option: -%s\n" "${OPTARG}" >&2
+    echo "${usage}" >&2
+    exit 1
+    ;;
   esac
 done
 
@@ -106,13 +108,14 @@ release_note="Wave backend, :slack: :robot_face:  \`${deploy_env}\` with \`${tar
 
 if [ $deploy_env == "STAG" ]; then
   release_commits=$(git log --name-only --oneline "${last_commit_ref}".."${target_commit_ref}" | grep "Wave")
-  release_note=$(cat <<-END
+  release_note=$(
+    cat <<-END
 $release_note
 \`\`\`
 ${release_commits}
 \`\`\`
 END
-)
+  )
 fi
 
 echo "---------- RELEASE NOTE BELOW ----------"
