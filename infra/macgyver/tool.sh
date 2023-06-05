@@ -10,20 +10,20 @@ CRYPTOKEY=flags-sym
 DECRYPT=decrypt
 ENCRYPT=encrypt
 
-FLAGS="-twitter_ro_secret=<SECRET_TAG>CiUAeV4Wacan4MAAeJ5F4QzJtkia7e5dpjFMXMnivvJWNRmEJmjLEloAoeWDLdvwMaxkMzH8wAp9H07IGElaFdFBy/LNe/FRtQuglY1Y2fi3SJkLznTvpV7WXdm/2hk7TqDvYr6sfR9RLyOQ7koPsQiSgAQ8mG1BKzbjt231DqIWmuI=</SECRET_TAG>"
-
-usage="$(basename "$0") [-h] [-e env] [-a action] -- program to encrypt/decrypt text by macgyver
+usage="$(basename "$0") [-h] [-e env] [-a action] [-u user_account] [-f file] -- program to encrypt/decrypt text by macgyver
 
 where:
     -h  show this help text
     -e  required, environment name (e.g. k8ssta, k8sprod)
-    -a  required, action (e.g. encrypt, decrypt)"
+    -a  required, action (e.g. encrypt, decrypt)
+    -u  required, gcloud user's account, it would be used to login and call kms encrypt / decrypt. Please ensure the user has been granted kms permissions.
+    -f  required, the file path contains flags line by line."
 
 ########################################################
 # Parse arguments
 ########################################################
 
-while getopts ':he:a:' flag; do
+while getopts ':he:a:u:f:' flag; do
   case "${flag}" in
   h)
     echo "${usage}"
@@ -31,6 +31,8 @@ while getopts ':he:a:' flag; do
     ;;
   e) env="${OPTARG}" ;;
   a) action="${OPTARG}" ;;
+  u) user_account="${OPTARG}" ;;
+  f) file="${OPTARG}" ;;
   :)
     printf "missing argument for -%s\n" "${OPTARG}" >&2
     echo "${usage}" >&2
@@ -48,7 +50,7 @@ done
 # validate arguments
 ########################################################
 
-if [ -z "${env}" ] || [ -z "${action}" ]; then
+if [ -z "${env}" ] || [ -z "${action}" ] || [ -z "${user_account}" ] || [ -z "${file}" ]; then
   echo "missing required arguments." >&2
   echo "${usage}" >&2
   exit 1
@@ -64,6 +66,11 @@ if [ "${action}" != "${DECRYPT}" ] && [ "${action}" != "${ENCRYPT}" ]; then
   exit 1
 fi
 
+if [ ! -f "${file}" ]; then
+  echo "${file} does not exist."
+  exit 1
+fi
+
 ########################################################
 # replace variables by $env
 ########################################################
@@ -73,9 +80,32 @@ if [ "${env}" == "k8sprod" ]; then
   KEYRING=wave-ccc3c
 fi
 
-echo "=============== [${PROJECT}] ${action} ==============="
-echo $FLAGS
-echo '=============== OUTPUT BELOW ==============='
+########################################################
+# login GCP
+########################################################
+
+function gcloud_env_setting {
+  if [ "$#" -ne 5 ]; then
+    echo "illeagel"
+    exit -1
+  fi
+  projectID=$1
+  region=$2
+  zone=$3
+  clusterName=$4
+  account=$5
+  gcloud config set account $account
+  gcloud config set project $projectID
+  gcloud config set compute/zone $zone
+  gcloud beta container clusters get-credentials $clusterName --region asia-east1 --project $projectID
+}
+
+gcloud_env_setting "${PROJECT}" "asia-east1" "asia-east1-a" "wave-api" "${user_account}"
+
+########################################################
+# run
+########################################################
+flags="$(cat ${file})"
 
 function decrypt() {
   plain_text=$(macgyver decrypt \
@@ -84,7 +114,7 @@ function decrypt() {
     --GCPlocationID=${LOCATION} \
     --GCPkeyRingID=${KEYRING} \
     --GCPcryptoKeyID=${CRYPTOKEY} \
-    --flags="${FLAGS}")
+    --flags="$1")
   echo $plain_text
 }
 
@@ -95,12 +125,39 @@ function encrypt() {
     --GCPlocationID="${LOCATION}" \
     --GCPkeyRingID="${KEYRING}" \
     --GCPcryptoKeyID="${CRYPTOKEY}" \
-    --flags="${FLAGS}")
+    --flags="$1")
   echo $cipher_text
 }
 
-if [ "${action}" == "${ENCRYPT}" ]; then
-  encrypt
-elif [ "${action}" == "${DECRYPT}" ]; then
-  decrypt
-fi
+function run() {
+  output_file=""
+  res=""
+  # encrypt
+  if [ "${action}" == "${ENCRYPT}" ]; then
+    while read -r line; do
+      if [ -z "${line}" ]; then
+        continue
+      fi
+      res="${res}$(encrypt ${line})\n"
+    done < <(printf "%s\n" "${flags}")
+    output_file="${file}.encrypt"
+
+  # decrypt
+  elif [ "${action}" == "${DECRYPT}" ]; then
+    while read -r line; do
+      if [ -z "${line}" ]; then
+        continue
+      fi
+      res="${res}$(decrypt ${line})\n"
+    done < <(printf "%s\n" "${flags}")
+    output_file="${file}.decrypt"
+  fi
+
+  # write to output file
+  echo -e ${res} >${output_file}
+  echo "============= RESULT ============="
+  echo "Input file: ${file}"
+  echo "Output file: ${output_file}"
+}
+
+run
