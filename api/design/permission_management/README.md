@@ -51,7 +51,7 @@ graph TD
 
 #### GET /admin/users/email/:email
 
-- **Description**: 根據 email 查詢使用者資料
+- **Description**: 根據 email 查詢使用者資料 (User Object)
 - **Response**:
 
 ```json
@@ -59,7 +59,13 @@ graph TD
   "id": "string(uuid)",
   "email": "string",
   "name": "string",
-  "admin_name": "string"
+  "admin_name": "string",
+  "permissions": [
+    {
+      "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
+      "actions": ["string (e.g. edit, create, delete, view, hidden)"]
+    }
+  ]
 }
 ```
 
@@ -125,7 +131,7 @@ graph TD
       "permissions": [
         {
           "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
-          "action": "string (e.g. edit, create, delete, view, hidden)"
+          "actions": ["string (e.g. edit, create, delete, view, hidden)"]
         }
       ]
     }
@@ -147,14 +153,14 @@ graph TD
     {
       "role_id": "int",
       "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
-      "action": "string (e.g. edit, create, delete, view, hidden)"
+      "actions": ["string (e.g. edit, create, delete, view, hidden)"]
     }
   ],
   "removed": [
     {
       "role_id": "int",
       "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
-      "action": "string (e.g. edit, create, delete, view, hidden)"
+      "action": ["string (e.g. edit, create, delete, view, hidden)"]
     }
   ]
 }
