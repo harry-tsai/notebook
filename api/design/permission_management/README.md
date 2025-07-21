@@ -98,8 +98,8 @@ graph TD
 
 ```json
 {
-  "added": ["string(uuid, 新增管理者)"],
-  "removed": ["string(uuid, 刪除管理者)"]
+  "added_user_ids": ["string(user_id, 新增管理者)"],
+  "removed_user_ids": ["string(user_id, 刪除管理者)"]
 }
 ```
 
