@@ -200,3 +200,11 @@ erDiagram
         int permission_id FK
     }
 ```
+
+### user_roles
+
+- Unique key: (user_id, role_id)
+
+### role_permissions
+
+- Unique key: (role_id, permission_id)
