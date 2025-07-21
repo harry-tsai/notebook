@@ -10,6 +10,8 @@ CRYPTOKEY=flags-sym
 DECRYPT=decrypt
 ENCRYPT=encrypt
 
+MACGYVER=~/go/bin/macgyver
+
 usage="$(basename "$0") [-h] [-e env] [-a action] [-u user_account] [-f file] -- program to encrypt/decrypt text by macgyver
 
 where:
@@ -108,7 +110,7 @@ gcloud_env_setting "${PROJECT}" "asia-east1" "asia-east1-a" "wave-api" "${user_a
 flags="$(cat ${file})"
 
 function decrypt() {
-  plain_text=$(macgyver decrypt \
+  plain_text=$(${MACGYVER} decrypt \
     --cryptoProvider=${PROVIDER} \
     --GCPprojectID=${PROJECT} \
     --GCPlocationID=${LOCATION} \
@@ -119,7 +121,7 @@ function decrypt() {
 }
 
 function encrypt() {
-  cipher_text=$(macgyver encrypt \
+  cipher_text=$(${MACGYVER} encrypt \
     --cryptoProvider="${PROVIDER}" \
     --GCPprojectID="${PROJECT}" \
     --GCPlocationID="${LOCATION}" \
