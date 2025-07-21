@@ -19,10 +19,10 @@ graph TD
 
     subgraph Permission Management API
         F[GET /admin/perm_mgt/user_roles] --> G[查詢角色設定列表]
-        H[POST /admin/perm_mgt/role/:id] --> I[編輯角色設定]
+        H[POST /admin/perm_mgt/role/:id] --> I[更新角色使用者]
 
         J[GET /admin/perm_mgt/role_permissions] --> K[查詢角色權限列表]
-        L[PATCH /admin/perm_mgt/role_permissions] --> M[更新角色權限]
+        L[POST /admin/perm_mgt/role_permissions] --> M[更新角色權限]
     end
 
     A --> F
@@ -142,7 +142,7 @@ graph TD
 - **HTTP Status Codes**:
   - `200 OK`
 
-#### PATCH /admin/perm_mgt/role_permissions
+#### POST /admin/perm_mgt/role_permissions
 
 - **Description**: 更新角色權限
 - **Request Body**:
