@@ -72,8 +72,8 @@ graph TD
   "admin_name": "string",
   "permissions": [
     {
-      "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
-      "actions": ["string (e.g. edit, create, delete, view, hidden)"]
+      "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management.account_settings ...)",
+      "actions": ["string (e.g. edit, create, delete, view)"]
     }
   ]
 }
@@ -153,8 +153,8 @@ graph TD
       "permissions": [
         {
           "id": "int",
-          "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
-          "actions": ["string (e.g. edit, create, delete, view, hidden)"]
+          "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management.account_settings ...)",
+          "actions": ["string (e.g. edit, create, delete, view)"]
         }
       ]
     }
@@ -191,6 +191,15 @@ graph TD
   - `204 No Content`
   - `404 Not Found`: Role not found / Permission not found
 
+## Note
+
+- Return 403 Forbidden if the user does not have permission to access the admin endpoint.
+- `resource_type` is a string enum
+  - `admin.reward_dispatch`: 派獎系統
+  - `admin.permission_management.account_settings`: 帳號設定
+  - `admin.permission_management.user_roles`: 角色設定
+  - `admin.permission_management.role_permissions`: 角色權限
+
 # Backend Design
 
 ## Database Schema
@@ -215,8 +224,8 @@ erDiagram
 
     permissions {
         int id PK
-        string resource_type "1: admin.reward_dispatch 2: admin.permission_management"
-        string action "1: edit 2: create 3: delete 4: view 5: hidden"
+        string resource_type "admin.reward_dispatch, admin.permission_management.account_settings ..."
+        string action "1: edit 2: create 3: delete 4: view"
     }
 
     user_roles {
