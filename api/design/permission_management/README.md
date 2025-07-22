@@ -11,7 +11,7 @@ graph TD
     A[Frontend]
     subgraph Admin User API
         BA[GET /admin/users] --> BB[取得管理者列表]
-        BC[POST /admin/users/update] --> BD[更新管理者]
+        BC[POST /admin/users/save] --> BD[儲存管理者]
         BE[GET /admin/users/email/:email] --> BF[email 查詢管理者]
     end
 
@@ -21,7 +21,7 @@ graph TD
 
     subgraph Admin IAM User Role API
         CA[GET /admin/iam/user_roles] --> CB[查詢角色設定列表]
-        CC[POST /admin/iam/user_roles/update] --> CD[更新角色使用者]
+        CC[POST /admin/iam/user_roles/save] --> CD[儲存角色使用者]
     end
 
     A --> CA
@@ -29,7 +29,7 @@ graph TD
 
     subgraph Admin IAM Role Permission API
         DA[GET /admin/iam/role_permissions] --> DB[查詢角色權限列表]
-        DC[POST /admin/iam/role_permissions/update] --> DD[更新角色權限]
+        DC[POST /admin/iam/role_permissions/save] --> DD[儲存角色權限]
     end
 
     A --> DA
@@ -67,9 +67,9 @@ graph TD
 - **HTTP Status Codes**:
   - `200 OK`
 
-#### POST /admin/users/update
+#### POST /admin/users/save
 
-- **Description**: 更新管理者
+- **Description**: 儲存管理者
 - **Request Body**:
 
 ```json
@@ -146,9 +146,9 @@ graph TD
 - **HTTP Status Codes**:
   - `200 OK`
 
-#### POST /admin/iam/user_roles/update
+#### POST /admin/iam/user_roles/save
 
-- **Description**: 更新角色使用者
+- **Description**: 儲存角色使用者
 - **Request Body**:
 
 ```json
@@ -200,9 +200,9 @@ graph TD
 - **HTTP Status Codes**:
   - `200 OK`
 
-#### POST /admin/iam/role_permissions/update
+#### POST /admin/iam/role_permissions/save
 
-- **Description**: 更新角色權限
+- **Description**: 儲存角色權限
 - **Request Body**:
 
 ```json
