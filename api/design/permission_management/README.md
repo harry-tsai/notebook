@@ -71,13 +71,19 @@ graph TD
 
 ```json
 {
-  "added_users": [
+  "add_users": [
     {
       "user_id": "string",
       "admin_name": "string"
     }
   ],
-  "removed_users": ["string(user_id)"]
+  "remove_users": ["string(user_id)"],
+  "update_users": [
+    {
+      "user_id": "string",
+      "admin_name": "string"
+    }
+  ]
 }
 ```
 
@@ -144,13 +150,13 @@ graph TD
 
 ```json
 {
-  "added": [
+  "add": [
     {
       "role_id": "int",
       "user_id": "string(uuid)"
     }
   ],
-  "removed": [
+  "remove": [
     {
       "role_id": "int",
       "user_id": "string(uuid)"
@@ -198,13 +204,13 @@ graph TD
 
 ```json
 {
-  "added": [
+  "add": [
     {
       "role_id": "int",
       "permission_id": "int"
     }
   ],
-  "removed": [
+  "remove": [
     {
       "role_id": "int",
       "permission_id": "int"
@@ -267,10 +273,47 @@ erDiagram
     }
 ```
 
-### user_roles
+### Tables
+
+#### user_roles
 
 - Unique key: (user_id, role_id)
 
-### role_permissions
+#### role_permissions
 
 - Unique key: (role_id, permission_id)
+
+### Notes
+
+- Adopt cache for above tables to improve performance.
+
+## High-Level Design
+
+### **[Store] User**
+
+#### GetByEmail(context ctx.CTX, email string) (\*models.User, error)
+
+- Caller
+  - api: `admin/users/email/:email` to retrieve user information.
+    - should filter out the user `is_admin = 0`.
+
+#### decorate(context ctx.CTX, user \*models.User)
+
+- Calls IAM store to fetch permissions and decorate the user object with permissions.
+
+#### [New] GetAdmins(context ctx.CTX) ([]\*models.User, error)
+
+- Fetch all users with `is_admin = 1` from the database.
+- Caller
+  - api: `admin/users/
+
+### **[New] [Store] IAM**
+
+This store will handle all IAM related operations, including admin, role, and permission management.
+
+#### GetPermissionsByUser(context ctx.CTX, userID string) (\*models.Permissions, error)
+
+- Query the database to get all roles for the user.
+- For each role, fetch the permissions associated with it.
+- Return a `models.Permissions` object containing the permissions.
+- Called by User store's `decorate` method to add permissions to the user object.
