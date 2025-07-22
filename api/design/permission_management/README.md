@@ -10,48 +10,58 @@ https://www.figma.com/board/WVmwn7pETlWmB8cHrEJcUi/Product-Team_Festure?node-id=
 graph TD
     A[Frontend]
     subgraph Admin User API
-        B[PATCH /admin/users/:id] --> C[設定管理者暱稱]
-        D[GET /admin/users/email/:email] --> E[email 查詢管理者]
+        BA[POST /admin/users/update] --> BB[更新管理者]
+        BG[GET /admin/users/email/:email] --> BH[email 查詢管理者]
     end
 
-    A --> B
-    A --> D
+    A --> BA
+    A --> BG
 
-    subgraph Permission Management API
-        F[GET /admin/perm_mgt/user_roles] --> G[查詢角色設定列表]
-        H[POST /admin/perm_mgt/role/:id] --> I[更新角色使用者]
-
-        J[GET /admin/perm_mgt/role_permissions] --> K[查詢角色權限列表]
-        L[POST /admin/perm_mgt/role_permissions] --> M[更新角色權限]
+    subgraph Admin IAM User Role API
+        CA[GET /admin/iam/user_roles] --> CB[查詢角色設定列表]
+        CC[POST /admin/iam/user_roles/update] --> CD[更新角色使用者]
     end
 
-    A --> F
-    A --> H
-    A --> J
-    A --> L
+    A --> CA
+    A --> CC
+
+    subgraph Admin IAM Role Permission API
+        DA[GET /admin/iam/role_permissions] --> DB[查詢角色權限列表]
+        DC[POST /admin/iam/role_permissions/update] --> DD[更新角色權限]
+    end
+
+    A --> DA
+    A --> DC
 ```
 
 ## Endpoints
 
 ### Admin User API
 
-#### PATCH /admin/users/:id
+#### POST /admin/users/update
 
-- **Description**: 設定使用者資料 (管理者暱稱)
+- **Description**: 更新管理者
 - **Request Body**:
 
 ```json
 {
-  "admin_name": "string"
+  "added_users": [
+    {
+      "user_id": "string",
+      "admin_name": "string"
+    }
+  ],
+  "removed_users": ["string(user_id)"]
 }
 ```
 
 - **HTTP Status Codes**:
   - `204 No Content`
+  - `404 Not Found`: User not found
 
 #### GET /admin/users/email/:email
 
-- **Description**: 根據 email 查詢使用者資料 (User Object)
+- **Description**: email 查詢管理者 (User Object)
 - **Response**:
 
 ```json
@@ -73,9 +83,9 @@ graph TD
   - `200 OK`
   - `404 Not Found`
 
-### Permission Management API
+### IAM User Role API
 
-#### GET /admin/perm_mgt/user_roles
+#### GET /admin/iam/user_roles
 
 - **Description**: 查詢角色設定列表
 - **Response**:
@@ -101,15 +111,25 @@ graph TD
 - **HTTP Status Codes**:
   - `200 OK`
 
-#### POST /admin/perm_mgt/role/:id
+#### POST /admin/iam/user_roles/update
 
-- **Description**: 編輯角色設定
+- **Description**: 更新角色使用者
 - **Request Body**:
 
 ```json
 {
-  "added_user_ids": ["string(user_id, 新增管理者)"],
-  "removed_user_ids": ["string(user_id, 刪除管理者)"]
+  "added": [
+    {
+      "role_id": "int",
+      "user_id": "string(uuid)"
+    }
+  ],
+  "removed": [
+    {
+      "role_id": "int",
+      "user_id": "string(uuid)"
+    }
+  ]
 }
 ```
 
@@ -117,7 +137,9 @@ graph TD
   - `204 No Content`
   - `404 Not Found`: Role not found / User not found
 
-#### GET /admin/perm_mgt/role_permissions
+### IAM Role Permission API
+
+#### GET /admin/iam/role_permissions
 
 - **Description**: 查詢角色權限列表
 - **Response**:
@@ -130,6 +152,7 @@ graph TD
       "name": "string (e.g. Admin, Team Lead)",
       "permissions": [
         {
+          "id": "int",
           "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
           "actions": ["string (e.g. edit, create, delete, view, hidden)"]
         }
@@ -142,7 +165,7 @@ graph TD
 - **HTTP Status Codes**:
   - `200 OK`
 
-#### POST /admin/perm_mgt/role_permissions
+#### POST /admin/iam/role_permissions/update
 
 - **Description**: 更新角色權限
 - **Request Body**:
@@ -152,15 +175,13 @@ graph TD
   "added": [
     {
       "role_id": "int",
-      "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
-      "actions": ["string (e.g. edit, create, delete, view, hidden)"]
+      "permission_id": "int"
     }
   ],
   "removed": [
     {
       "role_id": "int",
-      "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management)",
-      "action": ["string (e.g. edit, create, delete, view, hidden)"]
+      "permission_id": "int"
     }
   ]
 }
