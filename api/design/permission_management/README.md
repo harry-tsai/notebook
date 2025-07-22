@@ -10,12 +10,14 @@ https://www.figma.com/board/WVmwn7pETlWmB8cHrEJcUi/Product-Team_Festure?node-id=
 graph TD
     A[Frontend]
     subgraph Admin User API
-        BA[POST /admin/users/update] --> BB[更新管理者]
-        BG[GET /admin/users/email/:email] --> BH[email 查詢管理者]
+        BA[GET /admin/users] --> BB[取得管理者列表]
+        BC[POST /admin/users/update] --> BD[更新管理者]
+        BE[GET /admin/users/email/:email] --> BF[email 查詢管理者]
     end
 
     A --> BA
-    A --> BG
+    A --> BC
+    A --> BE
 
     subgraph Admin IAM User Role API
         CA[GET /admin/iam/user_roles] --> CB[查詢角色設定列表]
@@ -37,6 +39,30 @@ graph TD
 ## Endpoints
 
 ### Admin User API
+
+#### GET /admin/users
+
+- **Description**: 取得管理者列表
+- **Response**:
+
+```json
+{
+  "users": [
+    {
+      "id": "string(uuid)",
+      "email": "string",
+      "name": "string",
+      "admin_name": "string",
+      "permissions": [
+        {
+          "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management.account_settings ...)",
+          "actions": ["string (e.g. edit, create, delete, view)"]
+        }
+      ]
+    }
+  ]
+}
+```
 
 #### POST /admin/users/update
 
