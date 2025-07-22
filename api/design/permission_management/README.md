@@ -64,6 +64,9 @@ graph TD
 }
 ```
 
+- **HTTP Status Codes**:
+  - `200 OK`
+
 #### POST /admin/users/update
 
 - **Description**: 更新管理者
