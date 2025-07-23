@@ -20,8 +20,8 @@ graph TD
     A --> BE
 
     subgraph Admin IAM User Role API
-        CA[GET /admin/iam/user_roles] --> CB[查詢角色設定列表]
-        CC[POST /admin/iam/user_roles/save] --> CD[儲存角色使用者]
+        CA[GET /admin/iam/role_users] --> CB[查詢角色設定列表]
+        CC[POST /admin/iam/role_users/save] --> CD[儲存角色使用者]
     end
 
     A --> CA
@@ -120,9 +120,9 @@ graph TD
 
 ### IAM User Role API
 
-#### GET /admin/iam/user_roles
+#### GET /admin/iam/role_users
 
-- **Description**: 查詢角色設定列表
+- **Description**: 查詢角色使用者設定列表
 - **Response**:
 
 ```json
@@ -146,7 +146,7 @@ graph TD
 - **HTTP Status Codes**:
   - `200 OK`
 
-#### POST /admin/iam/user_roles/save
+#### POST /admin/iam/role_users/save
 
 - **Description**: 儲存角色使用者
 - **Request Body**:
@@ -232,7 +232,7 @@ graph TD
 - `resource_type` is a string enum
   - `admin.reward_dispatch`: 派獎系統
   - `admin.permission_management.account_settings`: 帳號設定
-  - `admin.permission_management.user_roles`: 角色設定
+  - `admin.permission_management.role_users`: 角色設定
   - `admin.permission_management.role_permissions`: 角色權限
 
 # Backend Design
@@ -320,3 +320,7 @@ This store will handle all IAM related operations, including admin, role, and pe
 - For each role, fetch the permissions associated with it.
 - Return a `models.Permissions` object containing the permissions.
 - Called by User store's `decorate` method to add permissions to the user object.
+
+### Middleware
+
+Middleware to check if the user has permission to access the admin endpoint.
