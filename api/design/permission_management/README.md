@@ -19,7 +19,7 @@ graph TD
     A --> BC
     A --> BE
 
-    subgraph Admin IAM User Role API
+    subgraph Admin IAM Role User API
         CA[GET /admin/iam/role_users] --> CB[查詢角色設定列表]
         CC[POST /admin/iam/role_users/save] --> CD[儲存角色使用者]
     end
@@ -118,7 +118,7 @@ graph TD
   - `200 OK`
   - `404 Not Found`
 
-### IAM User Role API
+### IAM Role User API
 
 #### GET /admin/iam/role_users
 
