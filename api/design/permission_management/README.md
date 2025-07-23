@@ -30,6 +30,7 @@ graph TD
     subgraph Admin IAM Role Permission API
         DA[GET /admin/iam/role_permissions] --> DB[查詢角色權限列表]
         DC[POST /admin/iam/role_permissions/save] --> DD[儲存角色權限]
+        DE[GET /admin/iam/permissions] --> DF[取得權限列表]
     end
 
     A --> DA
@@ -40,14 +41,9 @@ graph TD
 
 PR: https://github.com/17media/wave-openapi/pull/6
 
-## Note
+### Note
 
 - Return 403 Forbidden if the user does not have permission to access the admin endpoint.
-- `resource_type` is a string enum
-  - `admin.reward_dispatch`: 派獎系統
-  - `admin.permission_management.account_settings`: 帳號設定
-  - `admin.permission_management.role_users`: 角色設定
-  - `admin.permission_management.role_permissions`: 角色權限
 
 # Backend Design
 
