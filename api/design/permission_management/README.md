@@ -241,50 +241,50 @@ graph TD
 
 ```mermaid
 erDiagram
-    users 1--many(0) user_roles : has
-    roles 1--many(0) user_roles : has
-    roles 1--many(0) role_permissions : has
-    permissions 1--many(0) role_permissions : grants
+    Users 1--many(0) RoleUsers : has
+    Roles 1--many(0) RoleUsers : has
+    Roles 1--many(0) RolePermissions : has
+    Permissions 1--many(0) RolePermissions : grants
 
-    users {
+    Users {
         string(uuid) id PK
         string name
-        string admin_name
+        string adminName
     }
 
-    roles {
+    Roles {
         int id PK
         string name
     }
 
-    permissions {
+    Permissions {
         int id PK
-        string resource_type "admin.reward_dispatch, admin.permission_management.account_settings ..."
+        string resourceType "admin.reward_dispatch, admin.permission_management.account_settings ..."
         string action "1: edit 2: create 3: delete 4: view"
     }
 
-    user_roles {
+    RoleUsers {
         int id PK
-        string(uuid) user_id FK
-        int role_id FK
+        int roleID FK
+        string(uuid) userID FK
     }
 
-    role_permissions {
+    RolePermissions {
         int id PK
-        int role_id FK
-        int permission_id FK
+        int roleID FK
+        int permissionID FK
     }
 ```
 
 ### Tables
 
-#### user_roles
+#### RoleUsers
 
-- Unique key: (user_id, role_id)
+- Unique key: (userID, roleID)
 
-#### role_permissions
+#### RolePermissions
 
-- Unique key: (role_id, permission_id)
+- Unique key: (roleID, permissionID)
 
 ### Notes
 
