@@ -189,7 +189,7 @@ graph TD
         {
           "id": "int",
           "resource_type": "string (e.g. admin.reward_dispatch, admin.permission_management.account_settings ...)",
-          "actions": ["string (e.g. edit, create, delete, view)"]
+          "action": "string (e.g. edit, create, delete, view)"
         }
       ]
     }
