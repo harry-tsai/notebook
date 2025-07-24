@@ -20,8 +20,8 @@ graph TD
     A --> BE
 
     subgraph Admin IAM Role User API
-        CA[GET /admin/iam/role_users] --> CB[查詢角色設定列表]
-        CC[POST /admin/iam/role_users/save] --> CD[儲存角色使用者]
+        CA[GET /admin/iam/role_users] --> CB[查詢角色管理者列表]
+        CC[POST /admin/iam/role_users/save] --> CD[儲存角色管理者]
     end
 
     A --> CA
@@ -30,11 +30,48 @@ graph TD
     subgraph Admin IAM Role Permission API
         DA[GET /admin/iam/role_permissions] --> DB[查詢角色權限列表]
         DC[POST /admin/iam/role_permissions/save] --> DD[儲存角色權限]
-        DE[GET /admin/iam/permissions] --> DF[取得權限列表]
     end
 
     A --> DA
     A --> DC
+```
+
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+  Frontend ->>+ Backend: GET /me
+  Backend -->>- Frontend: 回傳帶有權限的使用者資訊
+  Frontend ->> Frontend: 檢查權限以顯示功能分頁
+
+  alt 進入 Account Settings 帳號設定頁面
+    alt 列出所有管理者
+      Frontend ->>+ Backend: GET /admin/users
+      Backend -->>- Frontend: 回傳管理者列表
+    else 以 email 搜尋管理者
+      Frontend ->>+ Backend: GET /admin/users/email/:email
+      Backend -->>- Frontend: 回傳符合 email 的管理者資訊
+    else 儲存管理者 (新增/編輯/刪除)
+      Frontend ->>+ Backend: POST /admin/users/save
+      Backend -->>- Frontend: 回傳成功
+    end
+  else 進入 Role Settings 角色設定頁面
+    alt 列出所有角色管理者
+      Frontend ->>+ Backend: GET /admin/iam/role_users
+      Backend -->>- Frontend: 回傳角色管理者列表
+    else 儲存角色管理者 (新增/刪除)
+      Frontend ->>+ Backend: POST /admin/iam/role_users/save
+      Backend -->>- Frontend: 回傳成功
+    end
+  else 進入 Role Permissions 角色權限設定頁面
+    alt 列出所有角色權限
+      Frontend ->>+ Backend: GET /admin/iam/role_permissions
+      Backend -->>- Frontend: 回傳角色權限列表
+    else save
+      Frontend ->>+ Backend: POST /admin/iam/role_permissions/save
+      Backend -->>- Frontend: 回傳成功
+    end
+  end
 ```
 
 ## API Specification
