@@ -9,10 +9,10 @@ https://www.figma.com/board/WVmwn7pETlWmB8cHrEJcUi/Product-Team_Festure?node-id=
 ```mermaid
 graph TD
     A[Frontend]
-    subgraph Admin User API
-        BA[GET /admin/users] --> BB[取得管理者列表]
-        BC[POST /admin/users/save] --> BD[儲存管理者]
-        BE[GET /admin/users/email/:email] --> BF[email 查詢管理者]
+    subgraph Admin Account API
+        BA[GET /admin/admins] --> BB[取得管理者列表]
+        BC[POST /admin/admins/save] --> BD[儲存管理者]
+        BE[GET /admin/admins/email/:email] --> BF[email 查詢管理者]
     end
 
     A --> BA
@@ -46,13 +46,13 @@ sequenceDiagram
 
   alt 進入 Account Settings 帳號設定頁面
     alt 列出所有管理者
-      Frontend ->>+ Backend: GET /admin/users
+      Frontend ->>+ Backend: GET /admin/admins
       Backend -->>- Frontend: 回傳管理者列表
     else 以 email 搜尋管理者
-      Frontend ->>+ Backend: GET /admin/users/email/:email
+      Frontend ->>+ Backend: GET /admin/admins/email/:email
       Backend -->>- Frontend: 回傳符合 email 的管理者資訊
     else 儲存管理者 (新增/編輯/刪除)
-      Frontend ->>+ Backend: POST /admin/users/save
+      Frontend ->>+ Backend: POST /admin/admins/save
       Backend -->>- Frontend: 回傳成功
     end
   else 進入 Role Settings 角色設定頁面
