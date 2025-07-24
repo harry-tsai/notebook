@@ -81,6 +81,7 @@ PR: https://github.com/17media/wave-openapi/pull/6
 ### Note
 
 - Return 403 Forbidden if the user does not have permission to access the admin endpoint.
+- We don't use `/admin/users` to get admin users because it's been used to retrieve elaborate user information by admin currently. Instead, we use `/admin/admins` to retrieve admin users only.
 
 # Backend Design
 
