@@ -4,38 +4,6 @@ https://www.figma.com/board/WVmwn7pETlWmB8cHrEJcUi/Product-Team_Festure?node-id=
 
 # API Design
 
-## Flow
-
-```mermaid
-graph TD
-    A[Frontend]
-    subgraph Admin Account API
-        BA[GET /admin/admins] --> BB[取得管理者列表]
-        BC[POST /admin/admins/save] --> BD[儲存管理者]
-        BE[GET /admin/admins/email/:email] --> BF[email 查詢管理者]
-    end
-
-    A --> BA
-    A --> BC
-    A --> BE
-
-    subgraph Admin IAM Role User API
-        CA[GET /admin/iam/role_users] --> CB[查詢角色管理者列表]
-        CC[POST /admin/iam/role_users/save] --> CD[儲存角色管理者]
-    end
-
-    A --> CA
-    A --> CC
-
-    subgraph Admin IAM Role Permission API
-        DA[GET /admin/iam/role_permissions] --> DB[查詢角色權限列表]
-        DC[POST /admin/iam/role_permissions/save] --> DD[儲存角色權限]
-    end
-
-    A --> DA
-    A --> DC
-```
-
 ## Sequence Diagram
 
 ```mermaid
