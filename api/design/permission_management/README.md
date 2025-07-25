@@ -209,7 +209,7 @@ Middleware to check if the user has permission to access the admin endpoint.
 
 #### 🆕 ListAdmins(context ctx.CTX) ([]\*models.User, error)
 
-- Fetch all users with `Admin = 1` from the database.
+- Fetch all users with `Admin = 1` from the MongoDB.
 
 #### 🆕 SaveAdmin(context ctx.CTX, inputs SaveAdminInputs) error
 
