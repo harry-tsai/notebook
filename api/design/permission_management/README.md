@@ -214,9 +214,9 @@ Middleware to check if the user has permission to access the admin endpoint.
 #### 🆕 SaveAdmin(context ctx.CTX, inputs SaveAdminInputs) error
 
 - Save admin users, including adding, updating, and removing admin users.
-  - Set `Admin = 1` for new admin users.
-  - Set `Admin = 0` for removed admin users.
-  - Update `AdminName` for updated admin users.
+  - Set `Admin = 1` for `inputs.AddUsers` new admin users.
+  - Set `Admin = 0` for `inputs.RemoveUserIDs` removed admin users.
+  - Update `AdminName` for `inputs.UpdateUsers` updated admin users.
 
 ### **🆕 [Store] IAM**
 
@@ -421,9 +421,9 @@ type RoleUsers struct {
 
 ```go
 type SaveAdminInputs struct {
-    AddUsers         SaveAdminUsers
-    RemoveUserIDs    []string
-    UpdateAdminUsers SaveAdminUsers
+    AddUsers       aveAdminUsers
+    RemoveUserIDs  []string
+    UpdateUsers    SaveAdminUsers
 }
 ```
 
