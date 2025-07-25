@@ -9,7 +9,7 @@ https://www.figma.com/board/WVmwn7pETlWmB8cHrEJcUi/Product-Team_Festure?node-id=
 ```mermaid
 sequenceDiagram
   Frontend ->>+ Backend: GET /me
-  Backend -->>- Frontend: 回傳帶有權限的使用者資訊
+  Backend -->>- Frontend: 回傳 🆕 帶有權限的使用者資訊
   Frontend ->> Frontend: 檢查權限以顯示功能分頁
 
   alt 進入 Account Settings 帳號設定頁面
@@ -17,7 +17,7 @@ sequenceDiagram
       Frontend ->>+ Backend: 🆕 GET /admin/admins
       Backend -->>- Frontend: 回傳管理者列表
     else 以 email 搜尋管理者
-      Frontend ->>+ Backend: 🆕 GET /admin/admins/email/:email
+      Frontend ->>+ Backend: 🆕 GET /admin/admins/email?email=
       Backend -->>- Frontend: 回傳符合 email 的管理者資訊
     else 儲存管理者 (新增/編輯/刪除)
       Frontend ->>+ Backend: 🆕 POST /admin/admins/save
@@ -60,7 +60,7 @@ erDiagram
     Users 1--many(0) RoleUsers : has
     Roles 1--many(0) RoleUsers : has
     Roles 1--many(0) RolePermissions : has
-    Permissions 1--many(0) RolePermissions : grants
+    Permissions 1--many(0) RolePermissions : has
 
     Users {
         string(uuid) id PK
@@ -75,20 +75,26 @@ erDiagram
 
     Permissions {
         int id PK
-        string resourceType "admin.reward_dispatch, admin.permission_management.account_settings ..."
-        string action "1: edit 2: create 3: delete 4: view"
+        string resourceType "admin.reward_dispatch ..."
+        string action "edit, create, delete, view"
     }
 
     RoleUsers {
         int id PK
         int roleID FK
         string(uuid) userID FK
+        int status "1: granted, 0: revoked"
+        int createdAt "unix timestamp in milliseconds"
+        int updatedAt "unix timestamp in milliseconds"
     }
 
     RolePermissions {
         int id PK
         int roleID FK
         int permissionID FK
+        int status "1: granted, 0: revoked"
+        int createdAt "unix timestamp in milliseconds"
+        int updatedAt "unix timestamp in milliseconds"
     }
 ```
 
