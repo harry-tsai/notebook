@@ -25,18 +25,18 @@ sequenceDiagram
     end
   else 進入 Role Settings 角色設定頁面
     alt 列出所有角色管理者
-      Frontend ->>+ Backend: 🆕 GET /admin/iam/role_users
+      Frontend ->>+ Backend: 🆕 GET /admin/permission/role_users
       Backend -->>- Frontend: 回傳角色管理者列表
     else 儲存角色管理者 (新增/刪除)
-      Frontend ->>+ Backend: 🆕 POST /admin/iam/role_users/save
+      Frontend ->>+ Backend: 🆕 POST /admin/permission/role_users/save
       Backend -->>- Frontend: 回傳成功
     end
   else 進入 Role Permissions 角色權限設定頁面
     alt 列出所有角色權限
-      Frontend ->>+ Backend: 🆕 GET /admin/iam/role_permissions
+      Frontend ->>+ Backend: 🆕 GET /admin/permission/role_permissions
       Backend -->>- Frontend: 回傳角色權限列表
     else save
-      Frontend ->>+ Backend: 🆕 POST /admin/iam/role_permissions/save
+      Frontend ->>+ Backend: 🆕 POST /admin/permission/role_permissions/save
       Backend -->>- Frontend: 回傳成功
     end
   end
@@ -130,31 +130,31 @@ erDiagram
 
 - Calls User store `SaveAdmin`
 
-### 🆕 **[API] IAM**
+### 🆕 **[API] Permission**
 
 #### listRoleUsers(c \*gin.Context)
 
-##### GET /admin/iam/role_users
+##### GET /admin/permission/role_users
 
-- Calls IAM store `ListUserRole`
+- Calls Permission store `ListUserRole`
 
 #### saveRoleUsers(c \*gin.Context)
 
-##### POST /admin/iam/role_users/save
+##### POST /admin/permission/role_users/save
 
-- Calls IAM store `SaveUserRole`
+- Calls Permission store `SaveUserRole`
 
 #### listRolePermissions(c \*gin.Context)
 
-##### GET /admin/iam/role_permissions
+##### GET /admin/permission/role_permissions
 
-- Calls IAM store `ListRolePermission`
+- Calls Permission store `ListRolePermission`
 
 #### saveRolePermissions(c \*gin.Context)
 
-##### POST /admin/iam/role_permissions/save
+##### POST /admin/permission/role_permissions/save
 
-- Calls IAM store `SaveRolePermission`
+- Calls Permission store `SaveRolePermission`
 
 ### Middleware
 
@@ -165,8 +165,9 @@ Middleware to check if the user has permission to access the admin endpoint.
     - 🆕 option func: `WithPermission(permission)`
       - support single permission check is enough for current use cases.
   - logic
-    - check if permissions are provided
-    - if yes, call `us.Get` with options that will pass to `us.decorate` function to verify user permissions
+    - check if `permission` of option is provided
+    - if yes, call `us.Get` with options that will pass to `us.decorate` function to get user permissions
+    - if user does not have required `permission`, return `INSUFFICIENT_PERMISSION` error
   - usage
     ```go
     apis.Handle(arg, "GET", "/reward_dispatch",
@@ -194,13 +195,13 @@ Middleware to check if the user has permission to access the admin endpoint.
 
 ### **[Store] User**
 
-#### 🔄 decorate(context ctx.CTX, user \*models.User, required \*models.Permission) error
+#### 🔄 decorate(context ctx.CTX, user \*models.User, opt \*decorateOpt) error
 
-- If `required` permission is not null:
-  - Calls `GetUserPermissions` from IAM store to get user permissions.
-  - If user does not have required permission, return `INSUFFICIENT_PERMISSION` error with 403 Forbidden.
+- decorateOpt.permission is bool
+- If `opt.permission`:
+  - Calls `GetUserPermissions` from Permission store.
   - Decorate permissions to the user object.
-- `required` permission is optional for admin API, which is not required for normal user operations.
+- Usually, `opt.permission` is only passed by admin API through `authenticated()`, we don't retrieve permission with normal API.
 
 #### 🆕 GetAdminByEmail(context ctx.CTX, email string) (\*models.User, error)
 
@@ -218,7 +219,7 @@ Middleware to check if the user has permission to access the admin endpoint.
   - Set `Admin = 0` for `inputs.RemoveUserIDs` removed admin users.
   - Update `AdminName` for `inputs.UpdateUsers` updated admin users.
 
-### **🆕 [Store] IAM**
+### **🆕 [Store] Permission**
 
 #### CreatePermission(context ctx.CTX, permission \*models.Permission) error
 
@@ -257,7 +258,7 @@ Middleware to check if the user has permission to access the admin endpoint.
   - createdAt = current timestamp if not exists
   - updatedAt = current timestamp
 - Evict cache
-  - key: `iam:user_permissions:{userID}` cached by `GetUserPermissions()`
+  - hash key: `permission:user_permissions`
 
 #### revokeUserRole(context ctx.CTX, inputs \*UserRoleInputs) error
 
@@ -266,7 +267,7 @@ Middleware to check if the user has permission to access the admin endpoint.
   - updatedAt = current timestamp
   - return error if user role relation is not found
 - Evict cache
-  - key: `iam:user_permissions:{userID}` cached by `GetUserPermissions()`
+  - hash key: `permission:user_permissions`
 
 #### ListRolePermission(context ctx.CTX) (\*models.RolesPermissions, error)
 
@@ -286,8 +287,8 @@ Middleware to check if the user has permission to access the admin endpoint.
   - status = 1 (granted)
   - createdAt = current timestamp if not exists
   - updatedAt = current timestamp
-- Evict cache
-  - key: `iam:user_permissions:{userID}` cached by `GetUserPermissions()`
+- Delete cache
+  - hash key: `permission:user_permissions`
 
 #### revokeRolePermission(context ctx.CTX, inputs \*RolePermissionInputs) error
 
@@ -295,15 +296,20 @@ Middleware to check if the user has permission to access the admin endpoint.
   - status = 0 (revoked)
   - updatedAt = current timestamp
   - return error if role permission relation is not found
-- Evict cache
-  - key: `iam:user_permissions:{userID}` cached by `GetUserPermissions()`
+- Delete cache
+  - hash key: `permission:user_permissions`
 
 #### GetUserPermissions(context ctx.CTX, userID string) (\*models.UserPermissions, error)
 
-- Get user permission from cache by key: `iam:user_permissions:{userID}`.
-- Get user roles by `GetUserRoleByUser()`
-- Get role permissions by `GetRolePermissionByRole()` for each role
-- Aggregate all permissions and return as `models.UserPermissions`.
+- Get user permission from cache by hash key: `permission:user_permissions`.
+  - field: `userID`, value: `models.UserPermissions`
+- If cache miss:
+  - Get user roles by `GetUserRoleByUser()`
+  - Get role permissions by `GetRolePermissionByRole()` for each role
+  - Aggregate all permissions to `models.UserPermissions`
+  - Set cache with hash key: `permission:user_permissions`.
+    - field: `userID`, value: `models.UserPermissions`
+- Return `models.UserPermissions`.
 
 ## Models
 
@@ -314,7 +320,17 @@ type User struct {
     ID             string
     Name           string
     🆕 AdminName   string
-    🆕 Permissions Permissions // Optionally decorated only via admin API
+    🆕 Permissions mapset.Set[Permission]
+}
+
+func (u *User) CheckPermissions(required Permission) bool {
+    if u.Permissions == nil {
+        return false
+    }
+    if u.Permissions.Contains(required) {
+        return true
+    }
+    return false
 }
 ```
 
