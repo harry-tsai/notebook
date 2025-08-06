@@ -75,7 +75,7 @@ erDiagram
 
     Permissions {
         int id PK
-        string resourceType "admin.reward_dispatch ..."
+        string resourceType "admin.reward_schedules ..."
         string action "edit, create, delete, view"
     }
 
@@ -170,24 +170,24 @@ Middleware to check if the user has permission to access the admin endpoint.
     - if user does not have required `permission`, return `INSUFFICIENT_PERMISSION` error
   - usage
     ```go
-    apis.Handle(arg, "GET", "/reward_dispatch",
+    apis.Handle(arg, "GET", "/reward_schedules",
       authenticated(us,
         WithPermission(models.Permission{
-          {ResourceType: models.PermAdminRewardDispatch, Action: models.PermActionView},
+          {ResourceType: models.PermAdminRewardSchedules, Action: models.PermActionView},
         }),
       ),
     )
-    apis.Handle(arg, "POST", "/reward_dispatch/import",
+    apis.Handle(arg, "POST", "/reward_schedules/import",
       authenticated(us,
         WithPermission(models.Permission{
-          {ResourceType: models.PermAdminRewardDispatch, Action: models.PermActionCreate},
+          {ResourceType: models.PermAdminRewardSchedules, Action: models.PermActionCreate},
         }),
       ),
     )
-    apis.Handle(arg, "DELETE", "/reward_dispatch/delete/:rewardScheduleID",
+    apis.Handle(arg, "DELETE", "/reward_schedules/delete/:rewardScheduleID",
       authenticated(us,
         WithPermission(models.Permission{
-          {ResourceType: models.PermAdminRewardDispatch, Action: models.PermActionDelete},
+          {ResourceType: models.PermAdminRewardSchedules, Action: models.PermActionDelete},
         }),
       ),
     )
@@ -340,7 +340,7 @@ func (u *User) CheckPermissions(required Permission) bool {
 type PermissionResourceType string
 
 const (
-    PermAdminRewardDispatch         PermissionResourceType = "admin.reward_dispatch"
+    PermAdminRewardSchedules         PermissionResourceType = "admin.reward_Schedules"
     PermAdminPermMgtAccountSettings PermissionResourceType = "admin.permission_management.account_settings"
     PermAdminPermMgtRoleUsers       PermissionResourceType = "admin.permission_management.role_users"
     PermAdminPermMgtRolePermissions PermissionResourceType = "admin.permission_management.role_permissions"
